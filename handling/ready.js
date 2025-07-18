@@ -1,46 +1,32 @@
+const { Logger } = require('../utils/logger');
 
-module.exports = async (client) => {
-  console.log(`${client.user.tag} Is now online and Serving ${client.guilds.cache.size} servers with ${client.users.cache.size} users!`);
+module.exports = (client) => {
+    Logger.success(`Bot is ready! Logged in as ${client.user.tag}`);
+    Logger.info(`Serving ${client.guilds.cache.size} guilds with ${client.users.cache.size} users`);
 
-  const typeInput = client.config.presence?.type;
-  const typeMap = {
-    PLAYING: 0,
-    STREAMING: 1,
-    LISTENING: 2,
-    WATCHING: 3,
-    COMPETING: 5
-  };
+    // Set bot activity
+    const activities = [
+        { name: `${client.guilds.cache.size} servers`, type: 'WATCHING' },
+        { name: 'for commands!', type: 'LISTENING' },
+        { name: 'with Discord.js', type: 'PLAYING' }
+    ];
 
-  const activityType = typeMap[typeInput] !== undefined ? typeMap[typeInput] : 0;
+    let activityIndex = 0;
 
-  try {
-    await client.user.setPresence({
-      activities: [{
-        name: client.config.presence?.text,
-        type: activityType
-      }],
-      status: client.config.status
+    const updateActivity = () => {
+        const activity = activities[activityIndex];
+        client.user.setActivity(activity.name, { type: activity.type });
+        activityIndex = (activityIndex + 1) % activities.length;
+    };
+
+    // Set initial activity
+    updateActivity();
+
+    // Update activity every 30 seconds
+    setInterval(updateActivity, 30000);
+
+    // Log guild information
+    client.guilds.cache.forEach(guild => {
+        Logger.info(`Connected to guild: ${guild.name} (${guild.id}) - ${guild.memberCount} members`);
     });
-    console.log('\n✅ Done! Bot custom presence has been set successfully.');
-  } catch (error) {
-    console.error('❌ Error setting bot presence:', error);
-  }
-
-  // Initialize automod data if needed
-  const fs = require('fs');
-  const path = require('path');
-  
-  const automodPath = path.join(__dirname, '../data/automod.json');
-  if (!fs.existsSync(automodPath)) {
-    fs.writeFileSync(automodPath, JSON.stringify({}));
-    console.log('📝 Created automod.json file');
-  }
-
-  const giveawayPath = path.join(__dirname, '../data/giveaway.json');
-  if (!fs.existsSync(giveawayPath)) {
-    fs.writeFileSync(giveawayPath, JSON.stringify({}));
-    console.log('📝 Created giveaway.json file');
-  }
-
-  console.log('\n✅ Done! All Bot initialization process has been complete!');
 };

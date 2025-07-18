@@ -1,62 +1,71 @@
-const fs = require('fs');
-const path = require('path');
+
+const { getSettings } = require('../utils/settings');
+const { Logger } = require('../utils/logger');
+const { setCooldown, isOnCooldown, getRemainingCooldown } = require('../utils/cooldown');
 
 module.exports = async (message) => {
-    const client = message.client;
+    // Ignore bots and DMs
+    if (message.author.bot || !message.guild) return;
 
-    // Ignore bots and messages without content
-    if (message.author.bot || !message.content) return;
-
-    // Check if message starts with prefix
-    if (!message.content.startsWith(client.config.prefix)) return;
-
-    // Parse command and arguments
-    const args = message.content.slice(client.config.prefix.length).trim().split(/ +/);
-    const commandName = args.shift().toLowerCase();
-
-    // Get command from the commands collection
-    const command = client.commands.get(commandName);
-    if (!command) return;
-
-    // Owner-only command check
-    if (command.ownerOnly && message.author.id !== client.config.ownerId) {
-        return message.reply('❌ This command is restricted to the bot owner only.');
-    }
-
-    // Guild-only command check
-    if (command.guildOnly && !message.guild) {
-        return message.reply('❌ This command can only be used in servers.');
-    }
-
-    // Permission checks
-    if (command.permissions && message.guild) {
-        if (!message.member.permissions.has(command.permissions)) {
-            return message.reply('❌ You do not have the required permissions to use this command.');
-        }
-    }
-
-    // Rate limiting with Bottleneck
     try {
-        await client.limiter.schedule(() => command.execute(client, message, args));
-    } catch (error) {
-        console.error(`Error executing command ${commandName}:`, error);
+        const settings = getSettings(message.guild.id);
+        const prefix = settings.prefix;
 
-        // Log error to file if logger exists
-        const loggerPath = path.join(__dirname, '../utils/logger.js');
-        if (fs.existsSync(loggerPath)) {
-            const logger = require('../utils/logger.js');
-            logger.error(`Command error in ${message.guild?.name || 'DM'}`, {
-                command: commandName,
-                user: message.author.tag,
-                error: error.message
+        // Check if message starts with prefix
+        if (!message.content.startsWith(prefix)) return;
+
+        // Parse command and arguments
+        const args = message.content.slice(prefix.length).trim().split(/ +/);
+        const commandName = args.shift().toLowerCase();
+
+        // Get command
+        const command = message.client.commands.get(commandName);
+        if (!command) return;
+
+        // Check cooldown
+        if (isOnCooldown(message.author.id, commandName)) {
+            const remaining = getRemainingCooldown(message.author.id, commandName);
+            return message.reply({
+                content: `⏰ You're on cooldown! Please wait ${remaining} more second(s).`,
+                allowedMentions: { repliedUser: false }
             });
         }
 
-        // Use channel.send instead of message.reply to avoid message reference errors
+        // Check permissions if specified
+        if (command.permissions && command.permissions.length > 0) {
+            const hasPermission = command.permissions.every(permission => 
+                message.member.permissions.has(permission)
+            );
+            
+            if (!hasPermission) {
+                return message.reply({
+                    content: "❌ You don't have permission to use this command!",
+                    allowedMentions: { repliedUser: false }
+                });
+            }
+        }
+
+        // Execute command with rate limiting
+        await message.client.limiter.schedule(async () => {
+            await command.execute(message, args);
+            
+            // Set cooldown (default 3 seconds, can be overridden per command)
+            const cooldownTime = command.cooldown || 3000;
+            setCooldown(message.author.id, commandName, cooldownTime);
+            
+            Logger.info(`Command ${commandName} executed by ${message.author.tag} in ${message.guild.name}`);
+        });
+
+    } catch (error) {
+        Logger.error(`Error executing command in guild ${message.guild?.name || 'Unknown'}`, error);
+        
         try {
-            await message.channel.send('❌ There was an error executing this command. Please try again later.');
-        } catch (sendError) {
-            console.error('Failed to send error message:', sendError);
+            await message.reply({
+                content: "❌ An error occurred while executing this command!",
+                allowedMentions: { repliedUser: false }
+            });
+        } catch (replyError) {
+            Logger.error('Failed to send error message to user', replyError);
         }
     }
 };
