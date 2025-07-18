@@ -41,7 +41,7 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "node dashboard/server.js"
+args = ""
 
 [[workflows.workflow]]
 name = "session secret "

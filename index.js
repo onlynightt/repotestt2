@@ -100,20 +100,3 @@ process.on('uncaughtException', (error) => {
 
 client.login(config.token);
 
-// Start dashboard server
-const startDashboard = () => {
-    try {
-        require('./dashboard/server.js');
-        console.log('✅ Dashboard server started successfully');
-    } catch (error) {
-        console.error('❌ Failed to start dashboard server:', error);
-    }
-};
-
-// Start dashboard after bot is ready
-client.once('ready', () => {
-    setTimeout(startDashboard, 2000); // Give bot time to fully initialize
-});
-
-// Export client for dashboard access
-module.exports = { client };
