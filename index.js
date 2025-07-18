@@ -26,7 +26,7 @@ client.limiter = new Bottleneck({
 });
 
 // Load all commands from folders
-["/commands/broadcast", "/commands/utility", "/commands/giveaway", "/commands/owner only", "/commands/moderation"].forEach(folder => {
+["/commands/broadcast", "/commands/Public", "/commands/giveaway", "/commands/owner only", "/commands/moderation"].forEach(folder => {
     const files = fs.readdirSync(`./${folder}`).filter(f => f.endsWith(".js"));
     for (const file of files) {
         const command = require(`./${folder}/${file}`);
