@@ -2,7 +2,6 @@ const fs = require('fs');
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const Bottleneck = require('bottleneck');
 const config = require('./data/config.json');
-const { Logger } = require('./utils/logger');
 
 const client = new Client({
     intents: [
@@ -47,14 +46,12 @@ client.limiter = new Bottleneck({
 client.once('ready', require('./handling/ready'));
 client.on('messageCreate', require('./handling/messageCreate'));
 
-// Auto-role on member join with welcome message
+// Auto-role on member join
 client.on('guildMemberAdd', async member => {
     const autoRolesPath = './data/autoroles.json';
-    const { getSettings } = require('./utils/settings');
 
-    try {
-        // Handle auto-roles
-        if (fs.existsSync(autoRolesPath)) {
+    if (fs.existsSync(autoRolesPath)) {
+        try {
             const autoRoles = JSON.parse(fs.readFileSync(autoRolesPath));
             const guildRoles = autoRoles[member.guild.id];
 
@@ -64,65 +61,38 @@ client.on('guildMemberAdd', async member => {
                     if (role) {
                         try {
                             await member.roles.add(role);
-                            Logger.info(`Added auto role ${role.name} to ${member.user.tag}`);
                         } catch (error) {
-                            Logger.error(`Failed to add auto role ${role.name} to ${member.user.tag}`, error);
+                            console.error(`Failed to add auto role ${role.name} to ${member.user.tag}:`, error);
                         }
                     }
                 }
             }
+        } catch (error) {
+            console.error('Error processing auto-roles:', error);
         }
-
-        // Handle welcome message
-        const settings = getSettings(member.guild.id);
-        if (settings.welcomeChannel) {
-            const welcomeChannel = member.guild.channels.cache.get(settings.welcomeChannel);
-            if (welcomeChannel) {
-                const welcomeMessage = settings.welcomeMessage
-                    .replace('{user}', member.user.toString())
-                    .replace('{guild}', member.guild.name);
-                
-                await welcomeChannel.send(welcomeMessage);
-                Logger.info(`Sent welcome message to ${member.user.tag} in ${member.guild.name}`);
-            }
-        }
-    } catch (error) {
-        Logger.error('Error processing member join', error);
     }
 });
 
-// Performance monitoring
-setInterval(() => {
-    const memUsage = process.memoryUsage();
-    const memUsageMB = Math.round(memUsage.heapUsed / 1024 / 1024);
-    
-    if (memUsageMB > 500) { // Alert if memory usage exceeds 500MB
-        Logger.warn(`High memory usage detected: ${memUsageMB}MB`);
-    }
-    
-    Logger.info(`Bot stats - Guilds: ${client.guilds.cache.size}, Users: ${client.users.cache.size}, Memory: ${memUsageMB}MB`);
-}, 300000); // Every 5 minutes
-
-// Enhanced graceful shutdown handling
+// Graceful shutdown handling
 process.on('SIGINT', () => {
-    Logger.info('Received SIGINT. Shutting down gracefully...');
+    console.log('\n🛑 Received SIGINT. Shutting down gracefully...');
     client.destroy();
     process.exit(0);
 });
 
 process.on('SIGTERM', () => {
-    Logger.info('Received SIGTERM. Shutting down gracefully...');
+    console.log('\n🛑 Received SIGTERM. Shutting down gracefully...');
     client.destroy();
     process.exit(0);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-    Logger.error('Unhandled Promise Rejection', reason);
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
     // Don't exit the process for unhandled rejections, just log them
 });
 
 process.on('uncaughtException', (error) => {
-    Logger.error('Uncaught Exception', error);
+    console.error('Uncaught Exception:', error);
     // Exit gracefully on uncaught exceptions
     client.destroy();
     process.exit(1);
