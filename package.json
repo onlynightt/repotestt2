@@ -1,0 +1,28 @@
+{
+  "name": "nodejs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/builders": "^1.11.2",
+    "@discordjs/rest": "^2.5.1",
+    "@discordjs/voice": "^0.18.0",
+    "@types/node": "^22.13.11",
+    "bottleneck": "^2.19.5",
+    "cookie-parser": "^1.4.7",
+    "discord-api-types": "^0.38.16",
+    "discord.js": "^14.19.3",
+    "discord.js-selfbot-v13": "^3.6.1",
+    "dotenv": "^16.5.0",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "math-expression-evaluator": "^2.0.7",
+    "ms": "^2.1.3"
+  }
+}

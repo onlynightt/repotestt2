@@ -1,0 +1,83 @@
+const {
+    ActionRowBuilder,
+    StringSelectMenuBuilder,
+    EmbedBuilder
+} = require("discord.js");
+
+module.exports = {
+    name: "help",
+    aliases: ["h"],
+    description: "Show all available commands in categories",
+    async execute(client, message) {
+        const prefix = client.config.prefix;
+
+const categoryLabels = {
+        public: "🌐 Public Commands",
+           moderation: "🛠 Moderation Commands",
+         giveaway: "🎁 Giveaway Commands"
+    };
+
+        const categories = Object.keys(categoryLabels);
+
+        const buildMenu = () => {
+            return new ActionRowBuilder().addComponents(
+                new StringSelectMenuBuilder()
+                    .setCustomId("help_menu")
+                    .setPlaceholder("📂 Select a command category")
+                    .addOptions(categories.map(cat => ({
+                        label: categoryLabels[cat].replace(/^[^a-zA-Z]+/, ""),
+                        description: `View ${categoryLabels[cat].toLowerCase()}`,
+                        value: cat,
+                        emoji: categoryLabels[cat].match(/^.. /)?.[0].trim()
+                    })))
+            );
+        };
+
+        const buildEmbed = (category) => {
+            const cmds = Array.from(new Set(client.commands.values()))
+                .filter(c => c.category === category && typeof c.execute === "function");
+
+            const embed = new EmbedBuilder()
+                .setColor(0x5865F2)
+                .setTitle(categoryLabels[category])
+                .setDescription(
+                    cmds.length
+                        ? cmds.map(cmd => {
+                            const names = [cmd.name, ...(cmd.aliases || [])]
+                                .map(n => `\`${prefix}${n}\``).join(", ");
+                            return `${names} - ${cmd.description || "No description"}`;
+                        }).join("\n")
+                        : "No commands in this category."
+                );
+
+            return embed;
+        };
+
+        const initialEmbed = new EmbedBuilder()
+            .setColor(0x5865F2)
+            .setTitle("📜 Help Menu")
+            .setDescription("Use the menu below to view different command categories.");
+
+        const sent = await message.channel.send({
+            embeds: [initialEmbed],
+            components: [buildMenu()]
+        });
+
+        const collector = sent.createMessageComponentCollector({
+            filter: i => i.customId === "help_menu" && i.user.id === message.author.id,
+            time: 60_000
+        });
+
+        collector.on("collect", async interaction => {
+            const category = interaction.values[0];
+            await interaction.update({
+                embeds: [buildEmbed(category)],
+                components: [buildMenu()]
+            });
+        });
+
+        collector.on("end", () => {
+        
+        });
+    }
+};

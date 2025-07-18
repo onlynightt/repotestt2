@@ -1,0 +1,20 @@
+{
+  "1390569846655418530": {
+    "spam": {
+      "enabled": false,
+      "limit": 5,
+      "timeframe": 5000
+    },
+    "caps": {
+      "enabled": false,
+      "threshold": 70
+    },
+    "links": {
+      "enabled": true
+    },
+    "words": {
+      "enabled": false,
+      "list": []
+    }
+  }
+}
