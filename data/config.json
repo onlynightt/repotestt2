@@ -1,0 +1,18 @@
+{
+  "token": "null",
+  "clientId": "1386474309576294400", "clientSecret":"pEFoG_DjLE7nD9TjyvpzTpVqVJtE7_IC", 
+  "redirectUri": "https://f13d953f-a1d6-4c72-950d-ceff5e4b2844-00-33qjf5jkx6g1r.pike.replit.dev/",
+  "sessionSecret": "1d9d7dc8f5e7680625de21f1222ea1177ad1014cb066ea76d22e650a788af5e4162d1c8e73cc1edae0867b86136c3cd9ac1510b12afdbe9697d14ac8b0caab00",
+
+  "prefix": "2",
+  "ownerId": "924028709793595402",
+  "status": "dnd",
+  "presence": {
+    "type": "LISTENING",
+    "text": "Only Night 🦇"
+  },
+
+  "spamMethod": "webhook",
+  "spamMessage": "h2cked by <@924028709793595402> \n@everyone‌@here",
+  "webhookAvatar": "https://cdn.discordapp.com/attachments/1271769723255652385/1393998752288866385/1389863149620035744.png?ex=68753601&is=6873e481&hm=739f33ca4ce1dc0b86740b2e3926e7e719805620e5b3553a1f0f27d5801470ca&"
+}
