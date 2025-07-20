@@ -21,7 +21,7 @@ module.exports = async (client) => {
       }],
       status: client.config.status
     });
-    console.log('\n✅ Done! Bot custom presence has been set successfully.');
+  //  console.log('\n✅ Done! Bot custom presence has been set successfully.');
   } catch (error) {
     console.error('❌ Error setting bot presence:', error);
   }
@@ -42,5 +42,6 @@ module.exports = async (client) => {
     console.log('📝 Created giveaway.json file');
   }
 
-  console.log('\n✅ Done! All Bot initialization process has been complete!');
+  //console.log('\n✅ Done! All Bot initialization process has been complete!');
+  console.log(`\n»» This bot was programmed by @reallnight.`)
 };

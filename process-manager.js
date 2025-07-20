@@ -14,7 +14,7 @@ class ProcessManager {
     }
 
     start() {
-        console.log('🚀 Starting Discord bot with auto-restart...');
+        //console.log('🚀 Starting Discord bot with auto-restart...');
         this.spawnBot();
     }
 
@@ -25,7 +25,7 @@ class ProcessManager {
                 cwd: process.cwd()
             });
 
-            console.log(`✅ Bot process started with PID: ${this.botProcess.pid}`);
+        // console.log(`✅ Bot process started with PID: ${this.botProcess.pid}`);
 
             this.botProcess.on('close', (code, signal) => {
                 console.log(`\n⚠️ Bot process exited with code ${code} and signal ${signal}`);
@@ -90,13 +90,13 @@ class ProcessManager {
 const processManager = new ProcessManager();
 
 process.on('SIGINT', () => {
-    console.log('\n🛑 Received SIGINT. Shutting down gracefully...');
+   // console.log('\n🛑 Received SIGINT. Shutting down...');
     processManager.stop();
     process.exit(0);
 });
 
 process.on('SIGTERM', () => {
-    console.log('\n🛑 Received SIGTERM. Shutting down gracefully...');
+    console.log('\n🛑 Received SIGTERM. Shutting down...');
     processManager.stop();
     process.exit(0);
 });

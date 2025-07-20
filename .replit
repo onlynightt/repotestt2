@@ -26,31 +26,17 @@ task = "shell.exec"
 args = "node index.js"
 
 [[workflows.workflow]]
-name = "Bot Auto-Restart"
-author = 42527946
+name = "port"
 mode = "sequential"
+author = 45224133
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "node process-manager.js"
+args = "node handling/keep-alive.js"
 
-[[workflows.workflow]]
-name = "Dashboard"
-author = 42527946
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = ""
-
-[[workflows.workflow]]
-name = "session secret "
-mode = "sequential"
-author = 42527946
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "node scc.js"
+[[ports]]
+localPort = 3000
+externalPort = 3000
 
 [[ports]]
 localPort = 5000

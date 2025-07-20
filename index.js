@@ -3,6 +3,8 @@ const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const Bottleneck = require('bottleneck');
 const config = require('./data/config.json');
 
+require('dotenv').config();
+
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -98,5 +100,5 @@ process.on('uncaughtException', (error) => {
     process.exit(1);
 });
 
-client.login(config.token);
+client.login(process.env.token);
 
